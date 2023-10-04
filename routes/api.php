@@ -14,6 +14,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// User routes
+Route::post('/register', 'UserController@register');
+Route::post('/login', 'UserController@login');
+Route::middleware('auth:api')->post('/logout', 'UserController@logout');
+
+// Post routes
+Route::middleware('auth:api')->get('/posts', 'PostController@index');
+Route::middleware('auth:api')->post('/posts', 'PostController@store');
+Route::middleware(['auth:api', 'owns.post'])->put('/posts/{id}', 'PostController@update');
+Route::middleware(['auth:api', 'owns.post'])->delete('/posts/{id}', 'PostController@destroy');
+
+// Middleware to check if the user owns the post
+Route::middleware(['auth:api', 'owns.post'])->group(function () {
+    Route::put('/posts/{id}', 'PostController@update');
+    Route::delete('/posts/{id}', 'PostController@destroy');
 });
